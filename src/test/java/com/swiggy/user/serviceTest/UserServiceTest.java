@@ -1,5 +1,6 @@
 package com.swiggy.user.serviceTest;
 
+import com.swiggy.user.enums.Role;
 import com.swiggy.user.models.User;
 import com.swiggy.user.models.requestModels.UserRequestModel;
 import com.swiggy.user.models.responseModels.UserResponseModel;
@@ -14,7 +15,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -44,12 +47,15 @@ public class UserServiceTest {
     void createUserSuccessfully() {
         when(userRepository.findByUsername("user")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
-        when(userRepository.save(any())).thenReturn(new User("user", "encodedPassword"));
+        when(userRepository.save(any())).thenReturn(new User( "user", "encodedPassword"));
         UserRequestModel userRequestModel = new UserRequestModel("user", "password");
+        Set<Role> roles = new HashSet<>();
+        roles.add(Role.CUSTOMER);
 
-        UserResponseModel savedUser = userService.register(userRequestModel);
+        UserResponseModel savedUser = userService.register(userRequestModel, roles);
 
-        assertEquals("user", savedUser.getUsername());
+        UserResponseModel expected = new UserResponseModel(null, "user");
+        assertEquals(expected, savedUser);
         verify(userRepository, times(1)).findByUsername("user");
         verify(passwordEncoder, times(1)).encode("password");
         verify(userRepository, times(1)).save(any());

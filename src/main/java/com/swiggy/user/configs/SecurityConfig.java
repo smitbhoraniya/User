@@ -22,6 +22,7 @@ public class SecurityConfig {
         http.csrf().disable()
                 .authorizeHttpRequests((authorize) -> {
                     authorize.requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll().
+                            requestMatchers(HttpMethod.POST, "/api/v1/delivery-partners").permitAll().
                             anyRequest().authenticated();
                 }).
                 headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)).httpBasic(Customizer.withDefaults());

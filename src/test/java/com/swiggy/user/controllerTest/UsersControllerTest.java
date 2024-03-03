@@ -1,6 +1,7 @@
 package com.swiggy.user.controllerTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swiggy.user.enums.Role;
 import com.swiggy.user.models.User;
 import com.swiggy.user.models.requestModels.UserRequestModel;
 import com.swiggy.user.models.responseModels.UserResponseModel;
@@ -13,6 +14,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -38,17 +42,18 @@ public class UsersControllerTest {
     @Test
     void createUserSuccessfully() throws Exception {
         UserRequestModel userRequestModel = new UserRequestModel("user", "password");
-        User user = new User("user", "password");
-        UserResponseModel userResponseModel = new UserResponseModel("user");
+        UserResponseModel userResponseModel = new UserResponseModel(1L, "user");
+        Set<Role> roles = new HashSet<>();
+        roles.add(Role.CUSTOMER);
 
-        when(userService.register(userRequestModel)).thenReturn(userResponseModel);
+        when(userService.register(userRequestModel, roles)).thenReturn(userResponseModel);
 
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequestModel)))
                 .andExpect(status().isCreated());
 
-        verify(userService, times(1)).register(userRequestModel);
+        verify(userService, times(1)).register(userRequestModel, roles);
     }
 
 }
